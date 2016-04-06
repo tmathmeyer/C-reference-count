@@ -3,3 +3,5 @@
 tests
 runrefs
 .scut_tmp.*
+latex/
+html/
