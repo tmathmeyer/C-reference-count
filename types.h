@@ -8,6 +8,7 @@ refstruct(list, {
     struct list *rest;
     void *first;
 });
+#define EMPTY NULL
 
 
 // a string type
@@ -25,18 +26,10 @@ refstruct(fixed, {
 });
 
 
-
-
-
-
 void string_destructor(void *string_v);
 string *_string(char *str, bool is_static);
 list *_list(void *elem, list *rest);
 fixed *_fixed(size_t, size_t);
-
-
-void print_string_list(list *list);
-list *map(void *(* fn)(void *), list *ls);
-void *fold(void *(* fn)(void *, void *), void *, list *);
-void *strcopy(void *v_str);
+void *strcopy(void *);
+void *strappend(void *, void *);
 #endif

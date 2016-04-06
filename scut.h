@@ -41,6 +41,8 @@
 #define ASSERT_REF(a, b, fail) do{if(a!=b){return fail;}}while(0)
 #define ASSERT(test, fail) do{if(!test){return fail}}while(0)
 #define ASSERT_SUCCESS() do{return NULL;}while(0)
+#define ASSERT_STR(a, b, fail) \
+    do{if(strcmp(a, b)){return fail;}}while(0)
 
 void RUN_TESTS();
 

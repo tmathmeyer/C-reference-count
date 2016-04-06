@@ -39,47 +39,16 @@ void string_destructor(void *string_v) {
     }
 }
 
-void print_string_list(list *list) {
-    while(list) {
-        S(list);
-        char *s = ((string *)(list->first))->str;
-        if (s) puts(s);
-        L(list);
-        list = list->rest;
-    }
-}
-
-list *map(void *(* fn)(void *), list *ls) {
-    if (ls == EMPTY) {
-        return EMPTY;
-    }
-    void *fnres = fn(ls->first);
-    list *tail = map(fn, ls->rest);
-    list *res = S(_list(fnres, tail));
-    L(tail);
-    L(fnres);
-    return res;
-}
-
-void *fold(void *(* fn)(void *, void *), void *init, list *ls) {
-    S(init);
-    S(ls);
-    if (ls == EMPTY) {
-        L(ls);
-        L(init);
-        return init;
-    }
-    void *foldrec = fold(fn, init, ls->rest);
-    void *fnres = fn(ls->first, foldrec);
-    L(foldrec);
-    L(init);
-    L(ls);
-    return fnres;
-}
-
-
 void *strcopy(void *v_str) {
     char *nstr = ((string *)v_str)->str;
     return S(_string(strdup(nstr), true));
 }
 
+void *strappend(void *v_strA, void *v_strB) {
+    char *A = ((string *)v_strA)->str;
+    char *B = ((string *)v_strB)->str;
+    char *C = calloc(strlen(A) + strlen(B) + 1, sizeof(char));
+    strcat(C, A);
+    strcat(C, B);
+    return S(_string(C, true));
+}

@@ -9,7 +9,6 @@ struct {
     size_t sub_references;
 } ptr_refcount;
 
-#define EMPTY NULL
 #define S(s) scope(s)
 #define L(s) lose_scope(s)
 #define R(s) get_refcount(s)

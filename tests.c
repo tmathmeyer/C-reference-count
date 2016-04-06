@@ -1,10 +1,20 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <malloc.h>
+#include <string.h>
 
 #include "scut.h"
 #include "ref.h"
 #include "types.h"
+#include "list.h"
+
+void *add_fixed(void *_a, void *_b) {
+    fixed *a = (fixed *)_a;
+    fixed *b = (fixed *)_b;
+    size_t denom = a->den * b->den;
+    size_t numer = (a->num * b->den) + (a->den * b->num);
+    return S(_fixed(numer, denom));
+}
 
 /*
  test that mallinfo can detect allocated memory values
@@ -97,14 +107,6 @@ START_TEST(auto_free_sets_fields_null) {
  test that the fold function works
 */
 START_TEST(fold_internal_numbers) {
-    void *add_fixed(void *_a, void *_b) {
-        fixed *a = (fixed *)_a;
-        fixed *b = (fixed *)_b;
-        size_t denom = a->den * b->den;
-        size_t numer = (a->num * b->den) + (a->den * b->num);
-        return S(_fixed(numer, denom));
-    }
-    
     struct mallinfo init = mallinfo();
     list *nums = S(_list(_fixed(2, 1), _list(_fixed(3, 1), EMPTY)));
     fixed *t = fold(add_fixed, S(_fixed(0, 1)), nums);
@@ -120,6 +122,65 @@ START_TEST(fold_internal_numbers) {
 
 }
 
+START_TEST(range_function_works) {
+    struct mallinfo init = mallinfo();
+    list *nums = numeric_range(2, 10);
+    fixed *t = fold(add_fixed, S(_fixed(0, 1)), nums);
+
+    ASSERT_REF(t->num, 54, "sum(2..10) should be 54");
+
+    L(nums);
+    L(t);
+    struct mallinfo post = mallinfo();
+    ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
+    ASSERT_SUCCESS();
+}
+
+START_TEST(range_function_works_fastfold) {
+    struct mallinfo init = mallinfo();
+    list *nums = numeric_range(2, 10);
+    fixed *t = fastfold(add_fixed, S(_fixed(0, 1)), nums);
+
+    ASSERT_REF(t->num, 54, "sum(2..10) should be 54");
+
+    L(nums);
+    L(t);
+    struct mallinfo post = mallinfo();
+    ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
+    ASSERT_SUCCESS();
+}
+
+START_TEST(range_function_works_big) {
+    struct mallinfo init = mallinfo();
+    list *nums = numeric_range(1, 10000);
+    fixed *t = fold(add_fixed, S(_fixed(0, 1)), nums);
+
+    ASSERT_REF(t->num, 10000*10001/2, "sum(1..10000) should be 10000*10001/2");
+
+    L(nums);
+    L(t);
+    struct mallinfo post = mallinfo();
+    ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
+    ASSERT_SUCCESS();
+}
+
+START_TEST(string_append_bullshit) {
+    struct mallinfo init = mallinfo();
+    list *strs = S(_list(_string("this ", 0), _list(_string("works.", 0), EMPTY)));
+    string *app = fastfold(strappend, S(_string("", 0)), strs);
+    ASSERT_STR(app->str, "this works.", "string should fold properly");
+
+    L(strs);
+    L(app);
+
+    struct mallinfo post = mallinfo();
+    ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
+    ASSERT_SUCCESS();
+}
+
 int main() {
-    RUN_TESTS();
+    int runs = 1;
+    while(runs --> 0) {
+        RUN_TESTS();
+    }
 }
