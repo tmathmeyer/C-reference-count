@@ -9,12 +9,14 @@ all: ref.o types.o list.o
 	@echo CC -c $<
 	@${CC} -c $< ${CFLAGS}
 
+linkable: ref.o types.o list.o
+	@ld -r $+ -o cref.o
 
-tests: tests.c all
+tests: tests.c linkable
 	@./scut.sh tests.c > /dev/null
 	@mv tests.c.o tests.o > /dev/null
-	@gcc ref.o types.o tests.o list.o -o tests -g -pedantic > /dev/null
+	@gcc cref.o tests.o -o tests -g -pedantic > /dev/null
 	@./tests
 
 clean:
-	rm reftest *.o
+	@rm -rf *.o tests html/ latex/
