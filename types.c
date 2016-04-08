@@ -30,6 +30,7 @@ fixed *_fixed(size_t num, size_t den) {
     res->num = num;
     res->den = den;
     res->destructor = NULL;
+    return res;
 }
 
 void string_destructor(void *string_v) {

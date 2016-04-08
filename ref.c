@@ -23,7 +23,7 @@ void *lose_scope(void *reftype) {
     ptr_refcount *refd = memblock-1;
     refd->refcount--;
     if (refd->refcount <= 0) {
-        for(int i = 0; i<refd->sub_references; i++) {
+        for(size_t i=0; i<refd->sub_references; i++) {
             void **location = (void **)reftype;
             lose_scope(location[i+1]);
             location[i+1] = NULL;

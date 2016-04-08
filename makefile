@@ -1,4 +1,4 @@
-CFLAGS = -std=c89 -pedantic-errors -rdynamic -g -D_GNU_SOURCE -Wall -Wextra
+CFLAGS = -std=c11 -pedantic-errors -rdynamic -g -D_GNU_SOURCE -Wall -Wextra
 
 all: ref.o types.o list.o
 	@echo "eventually build lib file;"
