@@ -20,6 +20,7 @@ struct {
 #define R(s) get_refcount(s)
 #define REF_STR destructor destructor;
 #define refstruct(name, fields) typedef struct name { REF_STR struct fields; } name
+#define scoped __attribute__((cleanup(auto_cleanup_ref)))
 
 typedef void (* destructor)(void *);
 
@@ -36,7 +37,7 @@ void *ref_malloc(size_t num_bytes, size_t subrefs);
  * covered by the macro R(pointer)
  * @param reftype the pointer to memory returned from red_malloc
  */
-size_t get_refcount(void *reftype);
+ssize_t get_refcount(void *reftype);
 
 /**
  * decrement the scope counter from a reftype
@@ -51,4 +52,6 @@ void *lose_scope(void *reftype);
  * @param reftype a pointer to memory returned from ref_malloc
  */
 void *scope(void *reftype);
+
+void auto_cleanup_ref(void *ref);
 #endif

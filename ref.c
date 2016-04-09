@@ -48,10 +48,15 @@ void *scope(void *reftype) {
     return reftype;
 }
 
-size_t get_refcount(void *reftype) {
+ssize_t get_refcount(void *reftype) {
     if (reftype == NULL) {
         return ~0x0;
     }
     ptr_refcount *memblock = (ptr_refcount *)(reftype);
     return memblock[-1].refcount;
+}
+
+void auto_cleanup_ref(void *ref) {
+    void **lose = (void **)ref;
+    lose_scope(*lose);
 }

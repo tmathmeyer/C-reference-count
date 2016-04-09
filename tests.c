@@ -178,6 +178,16 @@ START_TEST(string_append_bullshit) {
     ASSERT_SUCCESS();
 }
 
+START_TEST(auto_cleanup_attribute) {
+    struct mallinfo init = mallinfo();
+    {
+        scoped list *nums = S(_list(_fixed(1, 1), _list(_fixed(2, 1), EMPTY)));
+    }
+    struct mallinfo post = mallinfo();
+    ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
+    ASSERT_SUCCESS();
+}
+
 int main() {
     int runs = 1;
     while(runs --> 0) {
