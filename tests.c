@@ -34,26 +34,27 @@ START_TEST(test_mallinfo_works) {
 */
 START_TEST(map_free_works) {
     struct mallinfo init = mallinfo();
-    list *namelist = _list(
-            _string("ted", false),
-            _list(
-                _string("meyer", false),
-                EMPTY));
+    {
+        scoped list *namelist = S(_list(
+                _string("ted", false),
+                _list(
+                    _string("meyer", false),
+                    EMPTY)));
 
-    namelist = S(namelist);
-    list *names2 = map(strcopy, namelist);
+        scoped list *names2 = map(strcopy, namelist);
+        ASSERT_REF(R(namelist), 1, "refcount(namelist) is not 1");
+        ASSERT_REF(R(namelist->first), 1, "namelist->first is not 1");
+        ASSERT_REF(R(namelist->rest), 1, "namelist->rest is not 1");
+        ASSERT_REF(R(names2), 1, "refcount(names2) is not 1");
+    }
 
-    L(namelist);
-    L(names2);
     struct mallinfo post = mallinfo();
-    
-    ASSERT_REF(R(namelist), 0, "refcount not zero!");
     ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
     ASSERT_SUCCESS();
 }
 
 /*
- test that a list can be freed
+ test that a list can be freed manually
 */
 START_TEST(num_list_can_be_freed) {
     struct mallinfo init = mallinfo();
@@ -166,12 +167,16 @@ START_TEST(range_function_works_big) {
 
 START_TEST(string_append_bullshit) {
     struct mallinfo init = mallinfo();
-    list *strs = S(_list(_string("this ", 0), _list(_string("works.", 0), EMPTY)));
-    string *app = fastfold(strappend, S(_string("", 0)), strs);
-    ASSERT_STR(app->str, "this works.", "string should fold properly");
+    {
+        scoped list *strs =
+            S(_list(_string("this ", 0), _list(_string("works.", 0), EMPTY)));
+        scoped string *app = fastfold(strappend, S(_string("", 0)), strs);
 
-    L(strs);
-    L(app);
+        ASSERT_STR(app->str, "this works.", "string should fold properly");
+
+        ASSERT_REF(R(app), 1, "app is not 1");
+        ASSERT_REF(R(strs), 1, "strs is not 1");
+    }
 
     struct mallinfo post = mallinfo();
     ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");

@@ -22,8 +22,8 @@ list *map(void *(* fn)(void *), list *ls) {
     void *fnres = fn(ls->first);
     list *tail = map(fn, ls->rest);
     list *res = S(_list(fnres, tail));
-    L(tail);
     L(fnres);
+    L(tail);
     return res;
 }
 

@@ -16,12 +16,10 @@ string *_string(char *str, bool is_static) {
 }
 
 list *_list(void *elem, list *rest) {
-    S(rest);
-    S(elem);
     list *result = ref_malloc(sizeof(list), 2);
     result->destructor = NULL;
-    result->first = elem;
-    result->rest = rest;
+    result->first = S(elem);
+    result->rest = S(rest);
     return result;
 }
 
