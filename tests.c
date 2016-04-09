@@ -3,7 +3,7 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "scut.h"
+#include "test.h"
 #include "ref.h"
 #include "types.h"
 #include "list.h"
@@ -193,9 +193,4 @@ START_TEST(auto_cleanup_attribute) {
     ASSERT_SUCCESS();
 }
 
-int main() {
-    int runs = 1;
-    while(runs --> 0) {
-        RUN_TESTS();
-    }
-}
+int main() { }

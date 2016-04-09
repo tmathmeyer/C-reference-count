@@ -13,9 +13,7 @@ linkable: ref.o types.o list.o
 	@ld -r $+ -o cref.o
 
 tests: tests.c linkable
-	@./scut.sh tests.c > /dev/null
-	@mv tests.c.o tests.o > /dev/null
-	@gcc cref.o tests.o -o tests -g -pedantic > /dev/null
+	@gcc cref.o tests.c -o tests -g -pedantic > /dev/null
 	@./tests
 
 clean:
