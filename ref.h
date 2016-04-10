@@ -5,24 +5,44 @@
  * @brief File containing macros and structs for creating auto-refcount types
  */
 
+#include <stddef.h>
+#include <sys/types.h>
+#include <stdbool.h>
+
 #ifndef _REF_H_
 #define _REF_H_
 
 typedef 
 struct {
     void *inner;
-    size_t refcount;
+    ssize_t refcount;
     size_t sub_references;
 } ptr_refcount;
 
+/* number of fields in generic_type  */
+#define SELF_FUNCTIONS 3
+typedef
+struct generic_type {
+    void (*destructor)(struct generic_type *);
+    size_t (*hashcode)(struct generic_type *);
+    bool (*equals)(struct generic_type *, struct generic_type *);
+}
+generic_type;
+
 #define S(s) scope(s)
-#define L(s) lose_scope(s)
+#define L(s) ((s) = lose_scope(s))
 #define R(s) get_refcount(s)
-#define REF_STR destructor destructor;
-#define refstruct(name, fields) typedef struct name { REF_STR struct fields; } name
+
+#define refstruct(name, fields) typedef struct name { \
+    void (*destructor)(struct name *); \
+    size_t (*hashcode)(struct name *); \
+    bool (*equals)(struct name *, struct name *); \
+    struct fields; \
+} name
 #define scoped __attribute__((cleanup(auto_cleanup_ref)))
 
-typedef void (* destructor)(void *);
+typedef void (* self_fn)(void *);
+typedef size_t (* self_fn_size_t)(void *);
 
 /**
  * Allocate a refcounted struct.

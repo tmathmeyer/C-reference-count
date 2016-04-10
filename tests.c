@@ -79,8 +79,10 @@ START_TEST(multi_reference_dont_free) {
     ASSERT_REF(R(num), 2, "reference in scope, and one lists not 2!");
     L(B);
     ASSERT_REF(R(num), 1, "reference in scope, and no lists not 1!");
+    fixed *bk = num;
     L(num);
-    ASSERT_REF(R(num), 0, "should be freed");
+    ASSERT_REF(R(bk), 0, "should be freed");
+    ASSERT_REF(num, NULL, "should be set to null");
 
     struct mallinfo post = mallinfo();
     ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
@@ -93,8 +95,10 @@ START_TEST(multi_reference_dont_free) {
 START_TEST(auto_free_sets_fields_null) {
     struct mallinfo init = mallinfo();
     list *A = S(_list(_fixed(10, 3), EMPTY));
-    L(A);
+    list *F = A;
+    L(F);
     
+    ASSERT_REF(F, NULL, "L(x) sets to null");
     ASSERT_REF(A->rest, NULL, "rest in auto-freed list should be null");
     ASSERT_REF(A->first, NULL, "first in auto-freed list should be null");
     
@@ -114,10 +118,12 @@ START_TEST(fold_internal_numbers) {
 
     ASSERT_REF(t->num, 5, "0 + 2 + 3 should be 5");
 
+    list *nbackup = nums;
     L(nums);
     L(t);
     struct mallinfo post = mallinfo();
-    ASSERT_REF(R(nums), 0, "refcount not zero!");
+    ASSERT_REF(R(nbackup), 0, "refcount not zero!");
+    ASSERT_REF(nums, NULL, "ref not set to null");
     ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
     ASSERT_SUCCESS();
 
@@ -188,6 +194,19 @@ START_TEST(auto_cleanup_attribute) {
     {
         scoped list *nums = S(_list(_fixed(1, 1), _list(_fixed(2, 1), EMPTY)));
     }
+    struct mallinfo post = mallinfo();
+    ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
+    ASSERT_SUCCESS();
+}
+
+int ez_tester(void) {
+    scoped string *str = S(_string("this is a string!", false));
+    return str->length;
+}
+
+START_TEST(lose_scope_return) {
+    struct mallinfo init = mallinfo();
+    ASSERT_REF(ez_tester(), 17, "strlen not 17");
     struct mallinfo post = mallinfo();
     ASSERT_REF(init.uordblks, post.uordblks, "memory not freed");
     ASSERT_SUCCESS();

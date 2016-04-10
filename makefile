@@ -3,7 +3,7 @@ CFLAGS = -std=c11 -pedantic-errors -rdynamic -g -D_GNU_SOURCE -Wall -Wextra
 all: ref.o types.o list.o
 	@echo "eventually build lib file;"
 	@echo "for now, please run 'make tests'"
-#gcc runrefs.c ref.o types.o list.o -o runrefs -g -pedantic
+	@gcc cref.o tests.c -o tests -g -pedantic > /dev/null
 
 .c.o: config.mk
 	@echo CC -c $<
@@ -12,8 +12,7 @@ all: ref.o types.o list.o
 linkable: ref.o types.o list.o
 	@ld -r $+ -o cref.o
 
-tests: tests.c linkable
-	@gcc cref.o tests.c -o tests -g -pedantic > /dev/null
+tests: tests.c linkable all
 	@./tests
 
 clean:
