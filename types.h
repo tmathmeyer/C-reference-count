@@ -26,7 +26,9 @@ refstruct(fixed, {
 });
 
 
-void string_destructor(void *string_v);
+void string_destructor(string *string_v);
+size_t string_hash(string *string_v);
+bool string_equals(string *a, string *b);
 string *_string(char *str, bool is_static);
 list *_list(void *elem, list *rest);
 fixed *_fixed(size_t, size_t);

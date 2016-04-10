@@ -9,6 +9,8 @@
 string *_string(char *str, bool is_static) {
     string *res = ref_malloc(sizeof(string), 0);
     res->str = str;
+    res->hashcode = string_hash;
+    res->equals = string_equals;
     res->length = strlen(str);
     res->is_static = is_static;
     res->destructor = string_destructor;
@@ -18,6 +20,8 @@ string *_string(char *str, bool is_static) {
 list *_list(void *elem, list *rest) {
     list *result = ref_malloc(sizeof(list), 2);
     result->destructor = NULL;
+    result->hashcode = NULL;
+    result->equals = NULL;
     result->first = S(elem);
     result->rest = S(rest);
     return result;
@@ -28,10 +32,23 @@ fixed *_fixed(size_t num, size_t den) {
     res->num = num;
     res->den = den;
     res->destructor = NULL;
+    res->hashcode = NULL;
+    res->equals = NULL;
     return res;
 }
 
-void string_destructor(void *string_v) {
+size_t string_hash(string *string_v) {
+    string *s = (string *)string_v;
+    char *c = s->str;
+    size_t n = 13987123;
+    while(*c) {
+        n = (n + ((ssize_t)c*97)) * 253;
+        c++;
+    }
+    return n;
+}
+
+void string_destructor(string *string_v) {
     string *str = (string *)string_v;
     if (str->is_static) {
         free(str->str);
@@ -40,7 +57,8 @@ void string_destructor(void *string_v) {
 
 void *strcopy(void *v_str) {
     char *nstr = ((string *)v_str)->str;
-    return S(_string(strdup(nstr), true));
+    char *dup = strdup(nstr);
+    return S(_string(dup, true));
 }
 
 void *strappend(void *v_strA, void *v_strB) {
@@ -50,4 +68,11 @@ void *strappend(void *v_strA, void *v_strB) {
     strcat(C, A);
     strcat(C, B);
     return S(_string(C, true));
+}
+
+bool string_equals(string *a, string *b) {
+    if (a->length != b->length) {
+        return false;
+    }
+    return 0==strncmp(a->str, b->str, a->length);
 }

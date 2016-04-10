@@ -25,12 +25,12 @@ void *lose_scope(void *reftype) {
     if (refd->refcount <= 0) {
         for(size_t i=0; i<refd->sub_references; i++) {
             void **location = (void **)reftype;
-            lose_scope(location[i+1]);
-            location[i+1] = NULL;
+            lose_scope(location[i+SELF_FUNCTIONS]);
+            location[i+SELF_FUNCTIONS] = NULL;
         }
-        destructor d = ((destructor *)reftype)[0];
-        if (d) {
-            d(reftype);
+        self_fn destructor = ((self_fn *)reftype)[0];
+        if (destructor) {
+            destructor(reftype);
         }
         free(refd);
         return NULL;
@@ -58,5 +58,7 @@ ssize_t get_refcount(void *reftype) {
 
 void auto_cleanup_ref(void *ref) {
     void **lose = (void **)ref;
-    lose_scope(*lose);
+    if (*lose != 0 && R(*lose) != 0) {
+        lose_scope(*lose);
+    }
 }
