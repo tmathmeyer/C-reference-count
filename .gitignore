@@ -5,3 +5,4 @@ runrefs
 .scut_tmp.*
 latex/
 html/
+vgcore*
