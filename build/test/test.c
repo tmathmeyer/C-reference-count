@@ -4,9 +4,9 @@
 #include <string.h>
 
 #include "test.h"
-#include "ref.h"
-#include "types.h"
-#include "list.h"
+#include "cref/ref.h"
+#include "cref/types.h"
+#include "cref/list.h"
 
 void *add_fixed(void *_a, void *_b) {
     fixed *a = (fixed *)_a;

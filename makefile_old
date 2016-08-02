@@ -1,0 +1,18 @@
+CFLAGS = -std=c11 -pedantic-errors -rdynamic -g -D_GNU_SOURCE -Wall -Wextra
+
+linkable: ref.o types.o list.o
+	@echo LD -o cref.o $+
+	@ld -r $+ -o cref.o
+
+.c.o: config.mk
+	@echo CC -c $<
+	@${CC} -c $< ${CFLAGS}
+
+tests: tests.c linkable
+	@gcc cref.o tests.c -o tests ${CFLAGS}
+
+runtests: tests
+	@./tests
+
+clean:
+	@rm -rf *.o tests html/ latex/
