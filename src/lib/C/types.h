@@ -26,6 +26,8 @@ refstruct(fixed, {
 });
 
 
+#define STATIC(s) _string((s), 0)
+
 void string_destructor(string *string_v);
 size_t string_hash(string *string_v);
 bool string_equals(string *a, string *b);

@@ -6,3 +6,4 @@ runrefs
 latex/
 html/
 vgcore*
+build/

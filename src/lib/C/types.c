@@ -71,8 +71,12 @@ void *strappend(void *v_strA, void *v_strB) {
 }
 
 bool string_equals(string *a, string *b) {
+    S(a); S(b);
     if (a->length != b->length) {
+        L(a); L(b);
         return false;
     }
-    return 0==strncmp(a->str, b->str, a->length);
+    bool result = (0==strncmp(a->str, b->str, a->length));
+    L(a); L(b);
+    return result;
 }
