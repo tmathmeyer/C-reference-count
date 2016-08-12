@@ -73,5 +73,7 @@ void *lose_scope(void *reftype);
  */
 void *scope(void *reftype);
 
+void init_mem_tester();
+void print_allocated_addresses();
 void auto_cleanup_ref(void *ref);
 #endif

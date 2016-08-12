@@ -6,6 +6,9 @@
 #include "list.h"
 
 void print_string_list(list *list) {
+    if (R(list) <= 0) {
+        return;
+    }
     while(list) {
         S(list);
         char *s = ((string *)(list->first))->str;
