@@ -30,7 +30,7 @@ binary: build
 library: $(compiled_source_files)
 	@echo "$(shell pwd) library"
 	@mkdir -p build/library
-	@ld -o build/library/$(project).o -r $^
+	ld -o build/library/$(project).o -r $^
 build/obj/%.o: src/C/%.c
 	@mkdir -p build/obj
 	@gcc $(CFLAGS) -c $< -o $@
@@ -41,7 +41,9 @@ build/obj/%.o: src/C/%.c
 FORCE:
 
 deps/%/build/exported: deps/% FORCE
+	@mkdir -p build/exported
 	@ln -fs ../../$@ src/C/$(shell basename $<)
+	@ln -fs ../../$@ build/exported/$(shell basename $<)
 deps/%/build/library: deps/%
 	@mkdir -p build/library
 	@$(MAKE) -C $< build
