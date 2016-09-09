@@ -16,6 +16,7 @@ struct alloc_tracer {
 };
 
 static struct alloc_tracer *memtester = NULL;
+static size_t ptr_count = 0;
 
 void init_mem_tester() {
     memtester = calloc(sizeof(struct alloc_tracer), 4096);
@@ -29,10 +30,11 @@ void ins_ptr(void *pointer) {
 
     for(int i=0; i<4096; i++) {
         if (memtester[i].valid == 0) {
+            ptr_count++;
             memtester[i].valid = 1;
             memtester[i].address = pointer;
 
-            void *buffer[BT_BUF_SIZE];
+            void *buffer[BT_BUF_SIZE] = {};
             int nptrs = backtrace(buffer, BT_BUF_SIZE);
             char **strings = backtrace_symbols(buffer, nptrs);
             memtester[i].backtrace_type = strdup(strings[2]);
@@ -55,6 +57,30 @@ void rem_ptr(void *ptr) {
 
     for(int i=0; i<4096; i++) {
         if (memtester[i].valid && memtester[i].address==ptr) {
+            ptr_count--;
+            memtester[i].valid = 0;
+            free(memtester[i].backtrace_origin);
+            free(memtester[i].backtrace_type);
+            if (memtester[i].backtrace_origin_opt) {
+                free(memtester[i].backtrace_origin_opt);
+            }
+            return;
+        }
+    }
+    puts("could not free pointer!");
+    void *buffer[BT_BUF_SIZE];
+    int nptrs = backtrace(buffer, BT_BUF_SIZE);
+    char **strings = backtrace_symbols(buffer, nptrs);
+    for(int i=0; i<nptrs; i++) {
+        printf("    %i:%s\n", i, strings[i]);
+    }
+    free(strings);
+}
+
+void dump_valid_pointers() {
+    for(int i=0; i<4096; i++) {
+        if (memtester[i].valid) {
+            ptr_count--;
             memtester[i].valid = 0;
             free(memtester[i].backtrace_origin);
             free(memtester[i].backtrace_type);
@@ -63,6 +89,30 @@ void rem_ptr(void *ptr) {
             }
         }
     }
+}
+
+void *calloc_trace(size_t nmemb, size_t size) {
+    void *res = calloc(nmemb, size);
+    ins_ptr(res);
+    return res;
+}
+
+void *malloc_trace(size_t size) {
+    void *res = malloc(size);
+    ins_ptr(res);
+    return res;
+}
+
+void *realloc_trace(void *ptr, size_t size) {
+    rem_ptr(ptr);
+    void *res = realloc(ptr, size);
+    ins_ptr(res);
+    return res;
+}
+
+void free_trace(void *ptr) {
+    rem_ptr(ptr);
+    free(ptr);
 }
 
 void print_allocated_addresses() {

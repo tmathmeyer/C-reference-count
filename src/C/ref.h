@@ -76,4 +76,9 @@ void *scope(void *reftype);
 void init_mem_tester();
 void print_allocated_addresses();
 void auto_cleanup_ref(void *ref);
+void *calloc_trace(size_t, size_t);
+void *malloc_trace(size_t);
+void *realloc_trace(void *, size_t);
+void free_trace(void *);
+void dump_valid_pointers();
 #endif
